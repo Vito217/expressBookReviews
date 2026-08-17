@@ -15,20 +15,26 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 app.use("/customer/auth/*", function auth(req,res,next){
 
     // We check if req.session parameter needs authorization
-    if (req.session.authorization) {
-        let token = req.session.authorization['accessToken'];
-
-        // Verify JWT token
-        jwt.verify(token, "access", (err, user) => {
-            if (!err) {
-                req.user = user;
-                next();
-            } else {
-                return res.status(403).json({ message: "User not authenticated" });
-            }
-        });
-    } else {
-        return res.status(403).json({ message: "User not logged in" });
+    if (req.session)
+    {
+        if (req.session.authorization) {
+            let token = req.session.authorization['accessToken'];
+    
+            // Verify JWT token
+            jwt.verify(token, "access", (err, user) => {
+                if (!err) {
+                    req.user = user;
+                    next();
+                } else {
+                    return res.status(403).json({ message: "User not authenticated" });
+                }
+            });
+        } else {
+            return res.status(403).json({ message: "User not logged in" });
+        }
+    }
+    else{
+        return res.status(403).json({ message: "Session not detected" });
     }
 });
  
